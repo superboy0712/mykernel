@@ -19,4 +19,6 @@
 [1][QEMU + GDB Debugging Environment](https://www.ece.cmu.edu/~ee349/f-2012/lab2/qemu.pdf)  
 [2][The Dollar Local Label Symbols](https://sourceware.org/binutils/docs-2.18/as/Symbol-Names.html) , [Symbol Names](http://tigcc.ticalc.org/doc/gnuasm.html#SEC46)  
 [3][Debugging The Linux Kernel Using Gdb](http://www.elinux.org/Debugging_The_Linux_Kernel_Using_Gdb#Debugging_a_kernel_module_.28.o_and_.ko_.29)  
-[4][Kernel Debugging Tips: Using Kernel Symbols](http://elinux.org/Kernel_Debugging_Tips#Using_kernel_symbols)
+[4][Kernel Debugging Tips: Using Kernel Symbols](http://elinux.org/Kernel_Debugging_Tips#Using_kernel_symbols)  
+[5][GNU Extended Asm](https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html)
+[6][gcc inlne asm](http://www.cs.dartmouth.edu/~sergey/cs108/2009/gcc-inline-asm.pdf)
