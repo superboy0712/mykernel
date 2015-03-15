@@ -64,6 +64,46 @@ asm volatile(
 ```
 如评论. 让ESP 指向 0进程 栈顶(此时也是栈底). 把0进程栈底ebp入栈(orz 真绕.. ), 把 当前IP 入栈,也就是myprocess 入口地址. 跳转到 myprocess. 除非 myprocess 返回, 否则 ```"popl %%ebp\n\t"``` 永远不会执行.
 
+[myinterrupt.c](../myinterrupt.c) 
+```c
+void my_timer_handler(void)
+{
+  #if 1
+    if(time_count%1000 == 0 && my_need_sched != 1)
+    {
+    printk(KERN_NOTICE ">>>my_timer_handler here<<<\n");
+    my_need_sched = 1;
+    }
+    time_count ++ ;
+  #endif
+  return;
+}
+```
+定时中断服务程序. 周期性的触发,用于增加 ```time_count ++``` 每一千次置位一次 标志 ```my_need_sched``` 用于 通知进程可执行(spin locked by this flag, not really suspended). 此标志用于WHILE loop阻塞轮询式锁,并非真正挂起.
+
+从[line 54](../myinterrupt.c#L54)开始,如下
+```c
+if(next->state == 0)/* -1 unrunnable, 0 runnable, >0 stopped */
+{
+  /* switch to next process */
+  asm volatile(
+    "pushl %%ebp\n\t" /* save ebp */ /* 将此时的 栈底指针EBP入栈保护*/
+    "movl %%esp,%0\n\t" /* save esp */ /* 将当前进程的 栈顶指针ESP存入当前 进程的 thread.sp. 目的在保留切出前最新SP*/
+    "movl %2,%%esp\n\t" /* restore esp */ /* 将esp 指向 next进程的 thread.sp */
+    "movl $1f,%1\n\t" /* save eip */	/* 保留 标号 1 处的地址到 当前进程的 THREAD.EIP */
+    "pushl %3\n\t" /* 将next 进程的 最近一次 切换前的 EIP 入栈, next 进程的 1标号处的地址 */
+    "ret\n\t" /* restore eip */ /* 跳转到next 进程 最近一次切出 处 */
+    "1:\t" /* next process start here */
+    "popl %%ebp\n\t" /*恢复 ebp */
+    : "=m" (prev->thread.sp),"=m" (prev->thread.ip)
+    : "m" (next->thread.sp),"m" (next->thread.ip)
+  );
+  my_current_task = next;
+printk(KERN_NOTICE ">>>switch %d to %d<<<\n",prev->pid,next->pid);
+}
+```
+见如上对应的简体中文评论.
+
 ##Some modification and Test
 
 ###Why Passive Scheduling won't work here?
