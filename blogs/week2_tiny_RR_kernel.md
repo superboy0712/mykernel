@@ -102,7 +102,7 @@ if(next->state == 0)/* -1 unrunnable, 0 runnable, >0 stopped */
 printk(KERN_NOTICE ">>>switch %d to %d<<<\n",prev->pid,next->pid);
 }
 ```
-从[line 54](../myinterrupt.c#L54)开始,如下
+从[line 72](../myinterrupt.c#L72)开始,如下
 ```c
 else /* 当next进程非runnable 时 */
 {
@@ -133,6 +133,7 @@ else /* 当next进程非runnable 时 */
 
 ##QEMU + GDB Debugging environment
 看图和referrence[1][4]
+./week2_img1.jpg
 ##The Dollar Label Stuff
 看 Reference[2]
 
