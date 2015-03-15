@@ -128,7 +128,7 @@ else /* 当next进程非runnable 时 */
 ##Some modification and Test
 改成了被动调度,希望能从当前进程arbitrary position 切换出去. 但是只成功从 0 到 1, 然后一直 1.
 ###Why Passive Scheduling won't work here?
-时间中断服务函数 在编译器的默认编译下会加上 reti 函数, 强迫恢复中断前的EIP而没法改. 
+时间中断服务函数 在编译器的默认编译下会加上 reti 指令, 把已经切换的EIP又强迫恢复回去了. 得有办法不让中断默认编译出reti这条指令. 用汇编写中断?
 ###Possible Answer
 
 ##QEMU + GDB Debugging environment
