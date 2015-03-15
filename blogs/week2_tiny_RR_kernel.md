@@ -18,8 +18,8 @@
 ##Warm up & Play Around
 ##原版例子解析line by line
 此处为原有例子源文件[myinterrupt.c](../myinterrupt.c) 和 [mymain.c](../mymain.c)
-以下将对关键的代码进行解释.
-
+以下将对关键的代码进行解释.  
+ [mymain.c](../mymain.c)
 ``` c
 void __init my_start_kernel(void)
 ```
@@ -36,12 +36,12 @@ task[pid].next = &task[pid];
 /*fork more process */
 for(i=1;i<MAX_TASK_NUM;i++)
 {
-memcpy(&task[i],&task[0],sizeof(tPCB));
-task[i].pid = i;
-task[i].state = -1;
-task[i].thread.sp = (unsigned long)&task[i].stack[KERNEL_STACK_SIZE-1];
-task[i].next = task[i-1].next;
-task[i-1].next = &task[i];
+  memcpy(&task[i],&task[0],sizeof(tPCB));
+  task[i].pid = i;
+  task[i].state = -1;
+  task[i].thread.sp = (unsigned long)&task[i].stack[KERNEL_STACK_SIZE-1];
+  task[i].next = task[i-1].next;
+  task[i-1].next = &task[i];
 }
 ```
 初始化其他的进程,并且维护好其next指针. 其他进程初始化为unrunnable 状态
@@ -51,17 +51,18 @@ task[i-1].next = &task[i];
 pid = 0;
 my_current_task = &task[pid];
 asm volatile(
-"movl %1,%%esp\n\t" /* set task[pid].thread.sp to esp */
-"pushl %1\n\t" /* push ebp */
-"pushl %0\n\t" /* push task[pid].thread.ip */
-"ret\n\t" /* pop task[pid].thread.ip to eip */
-"popl %%ebp\n\t"
-:
-: "c" (task[pid].thread.ip),"d" (task[pid].thread.sp) /* input c or d mean %ecx/%edx*/
+  "movl %1,%%esp\n\t" /* set task[pid].thread.sp to esp */
+  "pushl %1\n\t" /* push ebp */
+  "pushl %0\n\t" /* push task[pid].thread.ip */
+  "ret\n\t" /* pop task[pid].thread.ip to eip */
+  "popl %%ebp\n\t"
+  :
+  : "c" (task[pid].thread.ip),"d" (task[pid].thread.sp) /* input c or d mean %ecx/%edx*/
 );
 }
 
 ```
+如评论. 让ESP 指向 0进程 栈顶(此时也是栈底). 把0进程栈底ebp入栈(orz 真绕.. ), 把 当前IP 入栈,也就是myprocess 入口地址. 跳转到 myprocess. 除非 myprocess 返回, 否则 ```"popl %%ebp\n\t"``` 永远不会执行.
 
 ##Some modification and Test
 
