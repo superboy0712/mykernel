@@ -102,18 +102,39 @@ if(next->state == 0)/* -1 unrunnable, 0 runnable, >0 stopped */
 printk(KERN_NOTICE ">>>switch %d to %d<<<\n",prev->pid,next->pid);
 }
 ```
+从[line 54](../myinterrupt.c#L54)开始,如下
+```c
+else /* 当next进程非runnable 时 */
+{
+  next->state = 0; /* 置为 runnable */
+  my_current_task = next;
+  printk(KERN_NOTICE ">>>switch %d to %d<<<\n",prev->pid,next->pid);
+  /* switch to new process */
+  asm volatile(
+    "pushl %%ebp\n\t" /* save ebp */
+    "movl %%esp,%0\n\t" /* save esp */
+    "movl %2,%%esp\n\t" /* restore esp */
+    "movl %2,%%ebp\n\t" /* restore ebp */
+    "movl $1f,%1\n\t" /* save eip */	
+    "pushl %3\n\t"
+    "ret\n\t" /* restore eip */
+    : "=m" (prev->thread.sp),"=m" (prev->thread.ip)
+    : "m" (next->thread.sp),"m" (next->thread.ip)
+  );
+} 
+```
 见如上对应的简体中文评论.
 
 ##Some modification and Test
-
+改成了被动调度,希望能从当前进程arbitrary position 切换出去. 但是只成功从 0 到 1, 然后一直 1.
 ###Why Passive Scheduling won't work here?
-
+时间中断服务函数 在编译器的默认编译下会加上 reti 函数, 强迫恢复中断前的EIP而没法改. 
 ###Possible Answer
 
 ##QEMU + GDB Debugging environment
-
+看图和referrence[1][4]
 ##The Dollar Label Stuff
-
+看 Reference[2]
 
 ##Reference
 [1][QEMU + GDB Debugging Environment](https://www.ece.cmu.edu/~ee349/f-2012/lab2/qemu.pdf)  
