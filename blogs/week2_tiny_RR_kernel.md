@@ -133,7 +133,7 @@ else /* 当next进程非runnable 时 */
 
 ##QEMU + GDB Debugging environment
 看图和referrence[1][4]
-![](./week2_img1.jpg)
+![](./gdb-qemu-kernel.png)
 ##The Dollar Label Stuff
 看 Reference[2]
 
